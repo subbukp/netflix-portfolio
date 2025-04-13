@@ -1,7 +1,8 @@
 {
   "build": {
-    "env": {
-      "NODE_OPTIONS": "--legacy-peer-deps"
-    }
+    "env": {}
+  },
+  "nodejs": {
+    "version": "18.x"
   }
 }
