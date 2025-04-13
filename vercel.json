@@ -1,8 +1,5 @@
 {
   "build": {
     "env": {}
-  },
-  "nodejs": {
-    "version": "18.x"
   }
 }
