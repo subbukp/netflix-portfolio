@@ -1,348 +1,488 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
 export default function Home() {
   const [showAnimation, setShowAnimation] = useState(true);
-  const [showProfiles, setShowProfiles] = useState(false);
+  const [profilesVisible, setProfilesVisible] = useState(false);
+  const [animationComplete, setAnimationComplete] = useState(false);
   const router = useRouter();
+  const audioRef = useRef(null);
+  const tudumRef = useRef(null);
 
+  // Handle animation sequence
   useEffect(() => {
-    // Load the audio script
-    const script = document.createElement('script');
-    script.src = '/netflix-audio.js';
-    script.async = true;
-    document.body.appendChild(script);
+    if (showAnimation) {
+      // Play tudum sound after 3s
+      const soundTimer = setTimeout(() => {
+        if (tudumRef.current) {
+          try {
+            tudumRef.current.play().catch(error => {
+              console.error("Audio play failed:", error);
+            });
+          } catch (error) {
+            console.error("Error playing sound:", error);
+          }
+        }
+      }, 3000);
+      
+      // Complete animation and show profiles after 5s
+      const animationTimer = setTimeout(() => {
+        setShowAnimation(false);
+        setProfilesVisible(true);
+        setAnimationComplete(true);
+      }, 5000);
+      
+      return () => {
+        clearTimeout(soundTimer);
+        clearTimeout(animationTimer);
+      };
+    }
+  }, [showAnimation]);
 
+  // Load the audio elements
+  useEffect(() => {
+    audioRef.current = new Audio('/trailer-start.mp3');
+    tudumRef.current = new Audio('/tudum.mp3');
+    
+    // Clean up
     return () => {
-      document.body.removeChild(script);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (tudumRef.current) {
+        tudumRef.current.pause();
+        tudumRef.current = null;
+      }
     };
   }, []);
 
-  useEffect(() => {
-    // Simulation of Netflix splash animation
-    if (showAnimation) {
-      // Play Netflix tudum sound if available or after script loads
-      setTimeout(() => {
-        if (window.playNetflixTudum) {
-          window.playNetflixTudum();
-        }
-      }, 200);
+  const handleProfileClick = (profileType) => {
+    try {
+      if (audioRef.current) {
+        audioRef.current.play().catch(error => {
+          console.log("Audio play failed:", error);
+        });
+      }
+    } catch (error) {
+      console.log("Error playing audio:", error);
     }
-
-    const timer = setTimeout(() => {
-      setShowAnimation(false);
-      setShowProfiles(true);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [showAnimation]);
-
-  const profiles = [
-    { 
-      id: 'professional', 
-      name: 'Site Reliability Engineer',
-      icon: '👔',
-      color: '#E50914',
-      description: 'Building resilient systems, automating at scale, securing the stack'
-    },
-    { 
-      id: 'technical', 
-      name: 'DevOps & Cloud',
-      icon: '💻',
-      color: '#0071EB',
-      description: 'Cloud platforms, Kubernetes, Infrastructure as Code'
-    },
-    { 
-      id: 'creative', 
-      name: 'Projects',
-      icon: '🎨',
-      color: '#F5F5F1',
-      description: 'Featured projects and technical implementations'
-    },
-    { 
-      id: 'business', 
-      name: 'Skills',
-      icon: '📊',
-      color: '#2EBD59',
-      description: 'Technical proficiencies and expertise'
-    }
-  ];
-
-  const handleProfileSelect = (profileId) => {
-    router.push(`/profile/${profileId}`);
+    
+    // Navigate after a short delay
+    setTimeout(() => {
+      router.push(`/profile/${profileType}`);
+    }, 1500);
   };
 
   return (
-    <div style={{ 
-      backgroundColor: 'black',
-      color: 'white',
-      minHeight: '100vh',
-      fontFamily: 'Inter, Arial, sans-serif',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: '0 20px' 
-    }}>
+    <div style={{ backgroundColor: 'black', minHeight: '100vh', fontFamily: 'Netflix Sans, Helvetica, Arial, sans-serif' }}>
       <Head>
-        <title>Subrahmanya K P | Site Reliability Engineer | DevOps Specialist</title>
-        <meta name="description" content="Portfolio of Subrahmanya K P, a Site Reliability Engineer and DevOps specialist focused on cloud infrastructure, Kubernetes, and automation" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>SUBRAHMANYA K P | DevOps Engineer & SRE</title>
+        <meta name="description" content="Netflix-themed portfolio of Subrahmanya K P, a DevOps Engineer and Site Reliability Engineer" />
         <link rel="icon" href="/favicon.ico" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </Head>
 
       <style jsx global>{`
+        @font-face {
+          font-family: 'Netflix Sans';
+          src: url('/fonts/NetflixSans-Regular.woff2') format('woff2');
+          font-weight: normal;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: 'Netflix Sans';
+          src: url('/fonts/NetflixSans-Bold.woff2') format('woff2');
+          font-weight: bold;
+          font-style: normal;
+        }
+        
         body {
           margin: 0;
           padding: 0;
-          overflow-x: hidden;
           background-color: black;
-          font-family: 'Inter', sans-serif;
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes scaleUp {
-          from { transform: scale(0.9); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        
-        @keyframes netflixIntro {
-          0% { transform: scale(1.5); opacity: 0; }
-          30% { transform: scale(1.5); opacity: 1; }
-          70% { transform: scale(1); opacity: 1; }
-          100% { transform: scale(1); opacity: 0; }
-        }
-        
-        @keyframes netflixSplash {
-          0% { clip-path: inset(0 100% 0 0); opacity: 0; }
-          10% { clip-path: inset(0 0 0 0); opacity: 1; }
-          90% { clip-path: inset(0 0 0 0); opacity: 1; }
-          100% { clip-path: inset(0 0 0 100%); opacity: 0; }
-        }
-        
-        .profile-card {
-          transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-          cursor: pointer;
-          position: relative;
-        }
-        
-        .profile-card:hover {
-          transform: scale(1.05);
-        }
-        
-        .profile-card:hover .profile-icon {
-          transform: scale(1.15);
-          box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
-        }
-        
-        .profile-card:hover .profile-name {
           color: white;
         }
         
-        .profile-icon {
-          transition: all 0.3s ease;
+        * {
+          box-sizing: border-box;
         }
         
-        .profile-name {
-          transition: color 0.3s ease;
+        .netflix-card {
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
-        @keyframes pulse {
-          0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
-          70% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        .netflix-card:hover {
+          transform: scale(1.05);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+          z-index: 2;
         }
+        
+        .netflix-profile-icon {
+          transition: transform 0.3s ease;
+          border-radius: 5px;
+          overflow: hidden;
+        }
+        
+        .netflix-profile-icon:hover {
+          transform: scale(1.1);
+        }
+        
+        .netflix-button {
+          background-color: white;
+          color: black;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 4px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .netflix-button:hover {
+          background-color: rgba(255, 255, 255, 0.85);
+        }
+        
+        @keyframes fadeSplash {
+          0% { opacity: 0; }
+          20% { opacity: 1; }
+          80% { opacity: 1; }
+          100% { opacity: 0; }
+        }
+        
+        @keyframes tudum {
+          0% { transform: scale(0.8); opacity: 0; }
+          20% { transform: scale(1.1); opacity: 1; }
+          40% { transform: scale(0.95); opacity: 1; }
+          60% { transform: scale(1); opacity: 1; }
+          100% { transform: scale(20); opacity: 0; }
+        }
+        
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .profile-card {
+          animation: fadeInUp 0.6s ease-out forwards;
+          opacity: 0;
+        }
+        
+        .profile-card:nth-child(1) { animation-delay: 0.1s; }
+        .profile-card:nth-child(2) { animation-delay: 0.3s; }
+        .profile-card:nth-child(3) { animation-delay: 0.5s; }
+        .profile-card:nth-child(4) { animation-delay: 0.7s; }
       `}</style>
 
-      {showAnimation && (
-        <div style={{ 
-          position: 'fixed',
-          top: 0,
-          left: 0,
+      {showAnimation ? (
+        <div style={{
           width: '100vw',
           height: '100vh',
           backgroundColor: 'black',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          zIndex: 100
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          zIndex: 1000,
+          animation: 'fadeSplash 5s ease-in-out forwards'
         }}>
-          <div style={{ 
-            color: '#E50914',
-            fontSize: '3rem',
+          <div style={{
+            fontSize: '64px',
             fontWeight: 'bold',
-            letterSpacing: '4px',
-            animation: 'netflixIntro 3s ease forwards',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center'
+            color: '#E50914',
+            animation: 'tudum 3.5s ease-in-out forwards',
+            animationDelay: '1.5s'
           }}>
-            <div style={{
-              position: 'relative',
-              width: '300px',
-              height: '150px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden'
-            }}>
-              <div style={{
-                animation: 'netflixSplash 3s ease forwards'
-              }}>
-                SUBRAHMANYA K P
-              </div>
-            </div>
-            <div style={{
-              fontSize: '1rem',
-              color: '#aaa',
-              marginTop: '1rem',
-              opacity: 0,
-              animation: 'fadeIn 1s ease forwards 1.5s'
-            }}>
-              Site Reliability Engineer & DevOps
-            </div>
+            Subrahmanya K P
           </div>
         </div>
-      )}
+      ) : null}
 
-      {showProfiles && (
-        <div style={{ 
-          maxWidth: '900px',
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+        transition: 'opacity 0.5s ease-in-out',
+        opacity: profilesVisible ? 1 : 0
+      }}>
+        <header style={{
           width: '100%',
-          textAlign: 'center',
-          animation: 'fadeIn 1s ease-out'
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '20px 40px',
+          position: 'absolute',
+          top: 0,
+          left: 0
         }}>
-          <h1 style={{ 
-            fontSize: '2.5rem',
-            fontWeight: '600',
-            marginBottom: '16px',
-            color: '#f5f5f5'
+          <div style={{
+            color: '#E50914',
+            fontSize: '32px',
+            fontWeight: 'bold',
           }}>
-            How would you like to view my portfolio?
-          </h1>
-          <p style={{
-            fontSize: '1.1rem',
-            color: '#aaa',
-            maxWidth: '600px',
-            margin: '0 auto 48px',
-            lineHeight: '1.6'
-          }}>
-            Site Reliability Engineer, DevOps Specialist & Security Enthusiast
-          </p>
-          
-          <div style={{ 
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: '32px',
-            justifyContent: 'center',
-            maxWidth: '800px',
-            margin: '0 auto'
-          }}>
-            {profiles.map(profile => (
-              <div 
-                key={profile.id}
-                className="profile-card"
-                onClick={() => handleProfileSelect(profile.id)}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  padding: '16px'
-                }}
-              >
-                <div
-                  className="profile-icon"
-                  style={{
-                    width: '120px',
-                    height: '120px',
-                    backgroundColor: profile.color,
-                    borderRadius: '16px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    fontSize: '3.5rem',
-                    marginBottom: '16px',
-                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.4)'
-                  }}
-                >
-                  {profile.icon}
-                </div>
-                <h2 
-                  className="profile-name"
-                  style={{
-                    fontSize: '1.2rem',
-                    fontWeight: '600',
-                    color: '#ccc',
-                    margin: '0 0 8px'
-                  }}
-                >
-                  {profile.name}
-                </h2>
-                <p style={{
-                  fontSize: '0.9rem',
-                  color: '#777',
-                  margin: 0,
-                  lineHeight: '1.4'
-                }}>
-                  {profile.description}
-                </p>
-              </div>
-            ))}
+            
           </div>
           
-          <div style={{ marginTop: '64px' }}>
-            <button 
-              onClick={() => window.open('https://github.com/subrahmanyakp', '_blank')}
+          <div style={{
+            position: 'absolute',
+            top: '40px',
+            right: '60px',
+            zIndex: 10,
+            animation: 'fadeIn 1s ease forwards 1s'
+          }}>
+            <a 
+              href="/document/resume.pdf" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="netflix-font"
               style={{
-                background: 'transparent',
-                border: '1px solid #555',
-                color: '#ccc',
-                padding: '12px 24px',
+                backgroundColor: 'rgba(229, 9, 20, 0.9)',
+                color: 'white',
+                padding: '10px 16px',
                 borderRadius: '4px',
-                fontSize: '1rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                display: 'inline-flex',
+                textDecoration: 'none',
+                fontSize: '0.9rem',
+                fontWeight: '500',
+                display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '8px',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
               }}
               onMouseOver={(e) => {
-                e.currentTarget.style.borderColor = '#888';
-                e.currentTarget.style.color = 'white';
+                e.currentTarget.style.backgroundColor = '#E50914';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.4)';
               }}
               onMouseOut={(e) => {
-                e.currentTarget.style.borderColor = '#555';
-                e.currentTarget.style.color = '#ccc';
+                e.currentTarget.style.backgroundColor = 'rgba(229, 9, 20, 0.9)';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C6.477 2 2 6.477 2 12C2 16.418 4.865 20.167 8.839 21.488C9.339 21.574 9.5 21.275 9.5 21V19.095C6.973 19.666 6.497 17.802 6.497 17.802C6.097 16.601 5.499 16.3 5.499 16.3C4.699 15.666 5.599 15.7 5.599 15.7C6.399 15.777 6.899 16.735 6.899 16.735C7.799 18.184 9.099 17.858 9.599 17.638C9.699 16.962 9.899 16.507 10.199 16.284C8.146 16.037 6.099 15.223 6.099 11.524C6.099 10.445 6.499 9.6 7.099 8.942C6.999 8.756 6.599 7.845 7.099 6.611C7.099 6.611 7.799 6.336 9.499 7.445C10.299 7.183 11.099 7.051 11.9 7.051C12.699 7.051 13.499 7.183 14.299 7.445C16.099 6.336 16.699 6.611 16.699 6.611C17.199 7.845 16.799 8.756 16.699 8.942C17.299 9.6 17.699 10.445 17.699 11.524C17.699 15.223 15.649 16.037 13.599 16.284C13.999 16.573 14.299 17.152 14.299 18.019V21C14.299 21.275 14.499 21.574 14.999 21.488C18.978 20.167 21.8 16.418 21.8 12C21.8 6.477 17.523 2 12 2Z" fill="currentColor"/>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 15L12 3M12 15L8 11M12 15L16 11M21 21H3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              View GitHub
-            </button>
+              DOWNLOAD RESUME
+            </a>
           </div>
-          
-          <footer style={{
-            marginTop: '80px',
-            fontSize: '0.9rem',
-            color: '#666'
+        </header>
+
+        <main style={{
+          width: '100%',
+          maxWidth: '1200px',
+          marginTop: '100px',
+          marginBottom: '50px'
+        }}>
+          <div style={{
+            textAlign: 'center',
+            marginBottom: '80px',
+            marginTop: '40px'
           }}>
-            <p>© {new Date().getFullYear()} Subrahmanya K P</p>
-            <p style={{ margin: '8px 0' }}>
-              Inspired by Netflix. Built with Next.js
+            <h1 style={{
+              fontSize: '2.5rem',
+              fontWeight: 'bold',
+              margin: '0',
+              marginBottom: '10px'
+            }}>
+              Who's exploring?
+            </h1>
+            <h2 style={{
+              fontSize: '1.5rem',
+              fontWeight: 'normal',
+              margin: '0',
+              color: '#aaa',
+              maxWidth: '600px',
+              marginLeft: 'auto',
+              marginRight: 'auto'
+            }}>
+              
+            </h2>
+            <p style={{
+              fontSize: '1.1rem',
+              color: '#aaa',
+              maxWidth: '700px',
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              marginTop: '15px',
+              lineHeight: 1.6
+            }}>
+              
             </p>
-          </footer>
-        </div>
-      )}
+          </div>
+
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            gap: '30px',
+            padding: '20px'
+          }}>
+            {/* Professional Profile */}
+            <div className="profile-card" onClick={() => handleProfileClick('professional')} style={{
+              cursor: 'pointer',
+              width: '200px',
+              textAlign: 'center'
+            }}>
+              <div className="netflix-profile-icon" style={{
+                width: '200px',
+                height: '200px',
+                backgroundColor: '#E50914',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '15px',
+                color: 'white',
+                fontSize: '60px'
+              }}>
+                👔
+              </div>
+              <h3 style={{
+                fontSize: '1.2rem',
+                fontWeight: 'normal',
+                margin: '0'
+              }}>Professional</h3>
+              <p style={{
+                color: '#aaa',
+                fontSize: '0.9rem',
+                margin: '10px 0 0'
+              }}>
+                Work Experience & Education
+              </p>
+            </div>
+
+            {/* Technical Profile */}
+            <div className="profile-card" onClick={() => handleProfileClick('technical')} style={{
+              cursor: 'pointer',
+              width: '200px',
+              textAlign: 'center'
+            }}>
+              <div className="netflix-profile-icon" style={{
+                width: '200px',
+                height: '200px',
+                backgroundColor: '#0071EB',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '15px',
+                color: 'white',
+                fontSize: '60px'
+              }}>
+                💻
+              </div>
+              <h3 style={{
+                fontSize: '1.2rem',
+                fontWeight: 'normal',
+                margin: '0'
+              }}>Technical</h3>
+              <p style={{
+                color: '#aaa',
+                fontSize: '0.9rem',
+                margin: '10px 0 0'
+              }}>
+                Skills & Tool Expertise
+              </p>
+            </div>
+
+            {/* Creative Profile */}
+            <div className="profile-card" onClick={() => handleProfileClick('creative')} style={{
+              cursor: 'pointer',
+              width: '200px',
+              textAlign: 'center'
+            }}>
+              <div className="netflix-profile-icon" style={{
+                width: '200px',
+                height: '200px',
+                backgroundColor: '#F5F5F1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '15px',
+                color: 'black',
+                fontSize: '60px'
+              }}>
+                🎨
+              </div>
+              <h3 style={{
+                fontSize: '1.2rem',
+                fontWeight: 'normal',
+                margin: '0'
+              }}>Projects</h3>
+              <p style={{
+                color: '#aaa',
+                fontSize: '0.9rem',
+                margin: '10px 0 0'
+              }}>
+                Featured Projects & Case Studies
+              </p>
+            </div>
+
+            {/* Business Profile */}
+            <div className="profile-card" onClick={() => handleProfileClick('business')} style={{
+              cursor: 'pointer',
+              width: '200px',
+              textAlign: 'center'
+            }}>
+              <div className="netflix-profile-icon" style={{
+                width: '200px',
+                height: '200px',
+                backgroundColor: '#2EBD59',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '15px',
+                color: 'white',
+                fontSize: '60px'
+              }}>
+                📊
+              </div>
+              <h3 style={{
+                fontSize: '1.2rem',
+                fontWeight: 'normal',
+                margin: '0'
+              }}>Skills</h3>
+              <p style={{
+                color: '#aaa',
+                fontSize: '0.9rem',
+                margin: '10px 0 0'
+              }}>
+                Technical Proficiencies & Achievements
+              </p>
+            </div>
+          </div>
+        </main>
+
+        <footer style={{
+          width: '100%',
+          textAlign: 'center',
+          margin: '50px 0 20px',
+          color: '#777',
+          fontSize: '0.9rem'
+        }}>
+          <p>© {new Date().getFullYear()} Subrahmanya K P. All rights reserved.</p>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '20px',
+            margin: '10px 0'
+          }}>
+            <a href="mailto:subrahmanya.kp@outlook.com" style={{ color: '#777', textDecoration: 'none' }}>Email</a>
+            <a href="https://www.linkedin.com/in/subrahmanya-k-p-964733184/" target="_blank" rel="noopener noreferrer" style={{ color: '#777', textDecoration: 'none' }}>LinkedIn</a>
+            <a href="tel:+919113842339" style={{ color: '#777', textDecoration: 'none' }}>Phone</a>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 } 
