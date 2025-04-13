@@ -6,7 +6,15 @@
 // Create a Netflix "tudum" sound effect
 function playNetflixTudum() {
   try {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    // Use a shared AudioContext or create a new one
+    const audioContext = window.netflixAudioContext || 
+                        new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Store for future use
+    window.netflixAudioContext = audioContext;
+    
+    // Resume the audio context (needed for Chrome's autoplay policy)
+    audioContext.resume();
     
     // Create oscillator for the main "tu-dum" sound
     const osc = audioContext.createOscillator();
@@ -43,6 +51,7 @@ function playNetflixTudum() {
     // Stop the oscillator after the sound is complete
     osc.stop(currentTime + 1);
     
+    console.log('Netflix tudum effect played successfully');
     return true; // Sound successfully played
   } catch (error) {
     console.error('Audio playback failed:', error);
@@ -53,7 +62,15 @@ function playNetflixTudum() {
 // Create a Netflix trailer start sound effect
 function playTrailerStart() {
   try {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    // Use a shared AudioContext or create a new one
+    const audioContext = window.netflixAudioContext || 
+                        new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Store for future use
+    window.netflixAudioContext = audioContext;
+    
+    // Resume the audio context (needed for Chrome's autoplay policy)
+    audioContext.resume();
     
     // Create two oscillators for a richer sound
     const osc1 = audioContext.createOscillator();
@@ -118,6 +135,7 @@ function playTrailerStart() {
     osc1.stop(currentTime + 2);
     osc2.stop(currentTime + 2);
     
+    console.log('Netflix trailer sound effect played successfully');
     return true;
   } catch (error) {
     console.error('Audio playback failed:', error);
@@ -125,6 +143,25 @@ function playTrailerStart() {
   }
 }
 
+// Add browser-specific audio initializers
+function initAudio() {
+  // Create context on user interaction to satisfy browsers' autoplay policies
+  if (!window.netflixAudioContext) {
+    try {
+      window.netflixAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+      console.log('Audio context initialized');
+    } catch (e) {
+      console.error('Could not initialize audio context:', e);
+    }
+  }
+}
+
+// Initialize audio on various user interactions
+document.addEventListener('click', initAudio, {once: true});
+document.addEventListener('touchstart', initAudio, {once: true});
+document.addEventListener('keydown', initAudio, {once: true});
+
 // Export the functions to the global scope
 window.playNetflixTudum = playNetflixTudum;
-window.playTrailerStart = playTrailerStart; 
+window.playTrailerStart = playTrailerStart;
+window.initAudio = initAudio; 
