@@ -1,10 +1,10 @@
 {
-  "name": "netflix-portfolio-src",
+  "name": "netflix-portfolio",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm install typescript@5.3.3 @types/react@18.2.45 @types/node@20.10.4 @types/react-dom@18.2.17 --no-save && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -15,10 +15,11 @@
     "typescript": "5.3.3",
     "@types/node": "20.10.4",
     "@types/react": "18.2.45",
-    "@types/react-dom": "18.2.17"
-  },
-  "devDependencies": {
+    "@types/react-dom": "18.2.17",
     "eslint": "8.55.0",
     "eslint-config-next": "14.0.4"
+  },
+  "engines": {
+    "node": ">=18.17.0"
   }
 }

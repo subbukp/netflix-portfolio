@@ -1,13 +1,38 @@
+"use client";
+
+import React from "react";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-8">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-red-600 mb-4">NETFLIX PORTFOLIO</h1>
-        <p className="text-xl mb-8">Welcome to Subrahmanya K P&apos;s Netflix-themed portfolio</p>
-        <p className="text-gray-400">
-          Click &quot;Continue&quot; to explore my work
+    <main style={{ 
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      padding: '1rem',
+      backgroundColor: 'black',
+      color: 'white',
+      textAlign: 'center'
+    }}>
+      <div>
+        <h1 style={{ color: '#E50914', fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+          NETFLIX PORTFOLIO
+        </h1>
+        <p style={{ fontSize: '1.25rem', marginBottom: '2rem' }}>
+          Welcome to Subrahmanya K P&apos;s Netflix-themed portfolio
         </p>
-        <button className="mt-6 bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 transition">
+        <button 
+          style={{ 
+            backgroundColor: '#E50914', 
+            color: 'white',
+            padding: '0.5rem 1.5rem',
+            border: 'none',
+            borderRadius: '4px',
+            fontSize: '1rem',
+            cursor: 'pointer'
+          }}
+        >
           Continue
         </button>
       </div>
